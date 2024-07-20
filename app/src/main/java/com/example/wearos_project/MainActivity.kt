@@ -13,7 +13,7 @@ import kotlinx.coroutines.tasks.await
 class MainActivity : AppCompatActivity() {
 
     private val db = FirebaseFirestore.getInstance()
-    private val heartRateThreshold = 150 //테스트 용 심박수 임계치임
+    private var heartRateThreshold = 150 //테스트 용 심박수 임계치임
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "574274568290",
+    "firebase_url": "https://cj-project-da850-default-rtdb.firebaseio.com",
+    "project_id": "cj-project-da850",
+    "storage_bucket": "cj-project-da850.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:574274568290:android:6cd7dfe070d47db442d13b",
+        "android_client_info": {
+          "package_name": "com.example.cj_project_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmfNp_858FF5GmmMhHFsY50SW5v6v_4Uk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:574274568290:android:0a484fd089e089e142d13b",
+        "android_client_info": {
+          "package_name": "com.example.wearos_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmfNp_858FF5GmmMhHFsY50SW5v6v_4Uk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

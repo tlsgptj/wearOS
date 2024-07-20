@@ -73,7 +73,7 @@ dependencies {
     debugImplementation(libs.ui.tooling)
     debugImplementation(libs.ui.test.manifest)
     implementation ("androidx.health.connect:connect-client:1.1.0-alpha02")
-    implementation("com.github.mikephil.charting:lib:3.2.2")
+    implementation ("com.google.android.gms:play-services-fitness:21.1.0")
     implementation("com.google.android.gms:play-services-auth:21.2.0")
     implementation ("com.google.firebase:firebase-firestore-ktx:25.0.0")
 }

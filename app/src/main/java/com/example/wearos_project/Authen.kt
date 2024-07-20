@@ -18,7 +18,7 @@ class AuthenActivity : AppCompatActivity() {
         allowButton.setOnClickListener {
             Toast.makeText(this, "권한이 허용되었습니다.", Toast.LENGTH_SHORT).show()
             finish()
-            val intent = Intent(MainActivity::class.java)
+            val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
 
