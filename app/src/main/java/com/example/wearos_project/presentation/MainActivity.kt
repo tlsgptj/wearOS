@@ -1,4 +1,4 @@
-package com.example.wearos_project
+package com.example.wearos_project.presentation
 
 import android.os.Bundle
 import android.util.Log
@@ -7,13 +7,27 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.example.wearos_project.R
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.fitness.Fitness
+import com.google.android.gms.fitness.data.DataType
+import com.google.android.gms.fitness.data.Field
+import com.google.android.gms.fitness.request.DataReadRequest
+import com.google.android.gms.fitness.result.DataReadResponse
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.tasks.await
+import java.io.ByteArrayOutputStream
+import java.io.OutputStreamWriter
+import java.io.PrintWriter
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
 
     private val db = FirebaseFirestore.getInstance()
-    private var heartRateThreshold = 150 //테스트 용 심박수 임계치임
+    private val storageRef = FirebaseStorage.getInstance().reference
+    private var heartRateThreshold = 150 // 테스트용 심박수 임계치
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,22 +35,65 @@ class MainActivity : AppCompatActivity() {
 
         // 심박수 임계치 입력 및 버튼 설정
         val thresholdInput: EditText = findViewById(R.id.thresholdInput)
-        val setthreshold: TextView = findViewById(R.id.setthreshold)
+        val setThresholdTextView: TextView = findViewById(R.id.setthreshold)
         val setThresholdButton: Button = findViewById(R.id.setThresholdButton)
 
         setThresholdButton.setOnClickListener {
             val input = thresholdInput.text.toString()
             if (input.isNotEmpty()) {
                 heartRateThreshold = input.toInt()
-                setthreshold.text = "심박수 임계치가 $heartRateThreshold 로 설정되었습니다."
+                setThresholdTextView.text = "심박수 임계치가 $heartRateThreshold 로 설정되었습니다."
             }
         }
 
         lifecycleScope.launchWhenStarted {
             while (true) {
-                fetchHeartRateData()
-                kotlinx.coroutines.delay(60000)  // 1분마다 데이터 갱신
+                requestHeartRateData() // 심박수 데이터를 측정하고 Firebase Storage에 저장
+                fetchHeartRateData()  // 저장된 데이터를 가져와 UI 업데이트
+                delay(60000)  // 1분마다 데이터 갱신
             }
+        }
+    }
+
+    private suspend fun requestHeartRateData() {
+        try {
+            val readRequest = DataReadRequest.Builder()
+                .read(DataType.TYPE_HEART_RATE_BPM)
+                .setTimeRange(1, System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .build()
+
+            val response = Fitness.getHistoryClient(this, GoogleSignIn.getLastSignedInAccount(this)!!)
+                .readData(readRequest)
+                .await()
+
+            val heartRateData = response.dataSets.flatMap { dataSet ->
+                dataSet.dataPoints.map { dataPoint ->
+                    dataPoint.getValue(Field.FIELD_BPM).asFloat()
+                }
+            }
+
+            // 심박수 데이터를 Firebase Storage에 업로드
+            uploadHeartRateDataToFirebase(heartRateData)
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Error fetching heart rate data", e)
+        }
+    }
+
+    private fun uploadHeartRateDataToFirebase(heartRateData: List<Float>) {
+        val heartRateRef = storageRef.child("heart_rate_data.txt")
+
+        val baos = ByteArrayOutputStream()
+        val writer = PrintWriter(OutputStreamWriter(baos))
+        heartRateData.forEach { writer.println(it) }
+        writer.flush()
+
+        val data = baos.toByteArray()
+        val uploadTask = heartRateRef.putBytes(data)
+
+        uploadTask.addOnSuccessListener {
+            Log.d("MainActivity", "Heart rate data uploaded successfully")
+        }.addOnFailureListener { e ->
+            Log.e("MainActivity", "Error uploading heart rate data", e)
         }
     }
 
@@ -85,5 +142,6 @@ class MainActivity : AppCompatActivity() {
         val timestamp: String
     )
 }
+
 
 
